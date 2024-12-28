@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react"
-import BookTable from "../Components/BooksTable"
+import ReviewTable from "../Components/ReviewTable"
 
-const BooksPage = () => {
-  const [books, setBooks] = useState([])
+const ReviewsPage = () => {
+  const [reviews, setReviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    fetch("http://localhost:8080/searchBooks")
+    fetch("http://localhost:8080/getReviews")
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to fetch books")
+          throw new Error("Failed to fetch reviews")
         }
         return response.json()
       })
       .then((data) => {
-        setBooks(data)
+        setReviews(data)
         setLoading(false)
       })
       .catch((err) => {
@@ -27,7 +27,7 @@ const BooksPage = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-lg font-medium">Loading books...</p>
+        <p className="text-lg font-medium">Loading reviews...</p>
       </div>
     )
   }
@@ -42,10 +42,10 @@ const BooksPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold text-center mb-6">Books</h1>
-      <BookTable books={books} />
+      <h1 className="text-3xl font-bold text-center mb-6">Reviews</h1>
+      <ReviewTable reviews={reviews} />
     </div>
   )
 }
 
-export default BooksPage
+export default ReviewsPage

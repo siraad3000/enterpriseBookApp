@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,8 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
 
     public boolean registerUser(String username, String password) {
         String encryptedPassword = passwordEncoder.encode(password);
@@ -56,6 +59,10 @@ public class UserService {
         }
         return false;
     }
+
+
+
+
 
     public boolean authenticateUser(String username, String password) {
         String query = "SELECT password FROM users WHERE username = ?";

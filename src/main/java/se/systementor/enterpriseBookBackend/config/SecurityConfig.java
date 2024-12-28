@@ -49,6 +49,14 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Use the custom CORS configuration
                 .csrf().disable()  // Disable CSRF for simplicity
                 .authorizeRequests(auth -> auth
+                        .requestMatchers("/getReviews").permitAll()  // Permit login endpoint
+                        .requestMatchers("/postReview").permitAll()// Permit login endpoint
+
+                        .requestMatchers("/saveBook").permitAll()
+
+
+
+                        .requestMatchers("/loadDatabase").permitAll()  // Permit login endpoint
                         .requestMatchers("/api/login").permitAll()  // Permit login endpoint
 
                         .requestMatchers("/api/register").permitAll()  // Allow access to the registration endpoint
@@ -56,6 +64,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/logout").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()  // All other requests require authentication
                 )
                 .formLogin().disable()  // Disable the login page

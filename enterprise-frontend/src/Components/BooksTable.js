@@ -1,52 +1,43 @@
-import React from "react";
+import React from "react"
 
 const BookTable = ({ books }) => {
   return (
-    <table
-      style={{
-        width: "100%",
-        borderCollapse: "collapse",
-        marginTop: "20px",
-      }}
-    >
-      <thead>
-        <tr>
-          <th style={styles.header}>ISBN</th>
-          <th style={styles.header}>Title</th>
-          <th style={styles.header}>Authors</th>
-          <th style={styles.header}>Published Year</th>
-          <th style={styles.header}>Description</th>
+    <div className="container mx-auto p-4">
+     
 
-        </tr>
-      </thead>
-      <tbody>
-        {books.map((book) => (
-          <tr key={book.id} style={styles.row}>
-            <td style={styles.cell}>{book.isbn}</td>
-            <td style={styles.cell}>{book.title}</td>
-            <td style={styles.cell}>{book.authors}</td>
-            <td style={styles.cell}>{book.publishedDate}</td>
-            <td style={styles.cell}>{book.description}</td>
+      {/* Table */}
+      <table className="table-auto w-full border-collapse border border-gray-300">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="border border-gray-300 px-4 py-2 text-red-500 font-bold">
+              ISBN
+            </th>
+            <th className="border border-gray-300 px-4 py-2">Title</th>
+            <th className="border border-gray-300 px-4 py-2">Authors</th>
+            <th className="border border-gray-300 px-4 py-2">Published Year</th>
+            <th className="border border-gray-300 px-4 py-2">Description</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
+        </thead>
+        <tbody>
+          {books.map((book) => (
+            <tr key={book.id} className="hover:bg-gray-50">
+              <td className="border border-gray-300 px-4 py-2">{book.isbn}</td>
+              <td className="border border-gray-300 px-4 py-2">{book.title}</td>
+              <td className="border border-gray-300 px-4 py-2">
+                {book.authors}
+              </td>
+              <td className="border border-gray-300 px-4 py-2">
+                {book.publishedDate}
+              </td>
+              <td className="border border-gray-300 px-4 py-2">
+                {book.description}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
-const styles = {
-  header: {
-    borderBottom: "2px solid #ddd",
-    padding: "10px",
-    textAlign: "left",
-    backgroundColor: "#f4f4f4",
-  },
-  row: {
-    borderBottom: "1px solid #ddd",
-  },
-  cell: {
-    padding: "10px",
-  },
-};
-
-export default BookTable;
+export default BookTable
