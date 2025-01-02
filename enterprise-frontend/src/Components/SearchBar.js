@@ -6,7 +6,7 @@ function SearchBar() {
   const [books, setBooks] = useState([])
   const [loading, setLoading] = useState(false)
   const [likedBooks, setLikedBooks] = useState({})
-  const [showReviewForm, setShowReviewForm] = useState(null) // ID of the book being reviewed
+  const [showReviewForm, setShowReviewForm] = useState(null) 
   const [reviewData, setReviewData] = useState({
     reviewerName: "",
     reviewText: "",
@@ -31,65 +31,43 @@ function SearchBar() {
     }
   }
 
-  // Toggle like for a book (and save to backend)
-  const toggleLike = async (bookId, book) => {
-    // Toggle the like state locally
-    setLikedBooks((prev) => ({
-      ...prev,
-      [bookId]: !prev[bookId],
-    }))
-
-    try {
-      // Save the liked book to the backend
-      const response = await axios.post("http://localhost:8080/saveBook", {
-        userId: 1, // Use the actual user ID here
-        bookId: book.id,
-        title: book.title,
-        imageUrl: book.image_url,
-        publishedDate: book.publishedDate,
-      })
-
-      if (response.status === 200) {
-        console.log("Book saved successfully")
-      } else {
-        console.error("Failed to save book")
-        // If saving fails, revert the like state
-        setLikedBooks((prev) => ({
-          ...prev,
-          [bookId]: !prev[bookId],
-        }))
-      }
-    } catch (error) {
-      console.error("Error saving book:", error)
-      // If error occurs, revert the like state
-      setLikedBooks((prev) => ({
-        ...prev,
-        [bookId]: !prev[bookId],
-      }))
-    }
-  }
-
   // Handle review submission
   const handlePostReview = async (event, bookId) => {
     event.preventDefault()
     try {
-      const response = await axios.post("http://localhost:8080/postReview", {
-        reviewerName: reviewData.reviewerName,
-        reviewText: reviewData.reviewText,
-        rating: reviewData.rating,
-        bookId: bookId, // Include the book ID
-      })
+      const response = await axios.post(
+        "http://localhost:8080/postReview",
+        {
+          reviewerName: reviewData.reviewerName,
+          reviewText: reviewData.reviewText,
+          rating: reviewData.rating,
+          bookId: bookId, // Include the book ID
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("jwt")}`, 
+            "Content-Type": "application/json",
+          },
+        }
+      )
+
       console.log(response)
       if (response.status === 200) {
         alert("Review submitted successfully!")
         setShowReviewForm(null)
         setReviewData({ reviewerName: "", reviewText: "", rating: "" })
+      } else if (response.status === 401) {
+        alert("You are not logged in!")
       } else {
         alert("Failed to submit review: " + response.data.message)
       }
     } catch (error) {
       console.error("Error posting review:", error)
-      alert("Error submitting review. Please try again.")
+      if (error.status === 401) {
+        alert("You are not logged in!")
+      } else {
+        alert("an error ocurred!")
+      }
     }
   }
 
@@ -222,30 +200,6 @@ function SearchBar() {
                   </div>
                 </form>
               )}
-
-              {/* Like Button */}
-              <div
-                className="inline-flex items-start mt-5 ml-24 cursor-pointer"
-                onClick={() => toggleLike(book.id, book)} // Pass book info here
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill={likedBooks[book.id] ? "#a7f3d0" : "none"}
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-6 h-6 mr-2 text-green-500"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
-                  />
-                </svg>
-                <span className="ml-2 text-green-700">
-                  {likedBooks[book.id] ? "Saved" : "Save"}
-                </span>
-              </div>
             </div>
           ))}
         </div>

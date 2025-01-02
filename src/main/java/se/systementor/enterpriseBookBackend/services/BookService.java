@@ -19,7 +19,7 @@ public class BookService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private static final DatabaseConnection dbConnection = new DatabaseConnection();
-    private static final String API_KEY = "AIzaSyAbFb6wmsqvojf4qdfRsriJ4x0YKTMRBFY"; // Temporary API key placeholder
+    private static final String API_KEY = "AIzaSyAbFb6wmsqvojf4qdfRsriJ4x0YKTMRBFY"; //  API key placeholder
 
     public BookService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -32,7 +32,7 @@ public class BookService {
         ArrayNode resultArray = objectMapper.createArrayNode();
         StringBuilder queryBuilder = new StringBuilder("SELECT * FROM books WHERE 1=1"); // Base query
 
-        // Append conditions based on non-null parameters
+        //  non-null parameters
         if (authors != null && !authors.isEmpty()) {
             queryBuilder.append(" AND authors LIKE ?");
         }
@@ -90,7 +90,7 @@ public class BookService {
         ArrayNode resultArray = objectMapper.createArrayNode();
         StringBuilder queryBuilder = new StringBuilder("SELECT * FROM book_reviews br JOIN books b ON br.book_id = b.id WHERE 1=1"); // Modified query with JOIN
 
-        // Append conditions based on non-null parameters
+        //  non-null parameters
         if (reviewerName != null && !reviewerName.isEmpty()) {
             queryBuilder.append(" AND br.reviewer_name LIKE ?");
         }
@@ -200,7 +200,7 @@ public class BookService {
                 String insertQuery = "INSERT INTO books (title, authors, isbn, publisher, publishedDate, description, categories, pageCount, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
 
-                // Debug: Count successful inserts
+                // Debug, Count successful inserts
                 int validBooksCount = 0;
 
                 for (JsonNode item : items) {
@@ -266,7 +266,7 @@ public class BookService {
     }
 
 
-    // Helper method to join an ArrayNode into a comma-separated string
+    // method to join an ArrayNode into a comma-separated string
     private String joinArray(ArrayNode arrayNode) {
         StringBuilder result = new StringBuilder();
         Iterator<JsonNode> elements = arrayNode.elements();
@@ -276,7 +276,7 @@ public class BookService {
         return result.length() > 2 ? result.substring(0, result.length() - 2) : result.toString();
     }
 
-    // Helper method to extract ISBN from industryIdentifiers
+    // method to extract ISBN from industryIdentifiers
     private String getISBN(JsonNode volumeInfo) {
         if (volumeInfo.has("industryIdentifiers")) {
             for (JsonNode identifier : volumeInfo.get("industryIdentifiers")) {
@@ -304,7 +304,7 @@ public class BookService {
 
 
 
-                // Now, insert the review into the book_reviews table, including the new fields
+
                 String insertQuery = "INSERT INTO book_reviews (book_id, reviewer_name, review_text, rating, publishedDate, image_url, title) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
                 try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
@@ -312,8 +312,8 @@ public class BookService {
                     insertStmt.setString(2, reviewerName);
                     insertStmt.setString(3, reviewText);
                     insertStmt.setInt(4, rating);
-                    insertStmt.setString(5, publishedDate);  // Use the publishedDate from the books table
-                    insertStmt.setString(6, image_url);  // Use the imageUrl from the books table
+                    insertStmt.setString(5, publishedDate);
+                    insertStmt.setString(6, image_url);
                     insertStmt.setString(7, bookTitle);
 
                     int rowsAffected = insertStmt.executeUpdate();

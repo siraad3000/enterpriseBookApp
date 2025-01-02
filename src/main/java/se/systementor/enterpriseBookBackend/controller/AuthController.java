@@ -1,16 +1,15 @@
 package se.systementor.enterpriseBookBackend.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
+import se.systementor.enterpriseBookBackend.config.JwtUtil;
 import se.systementor.enterpriseBookBackend.services.UserService;
 
 import java.util.Map;
@@ -22,8 +21,11 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    public AuthController(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody Map<String, String> userPayload) {
@@ -41,29 +43,42 @@ public class AuthController {
         String username = credentials.get("username");
         String password = credentials.get("password");
 
-        boolean isAuthenticated = userService.authenticateUser(username, password);
+        try {
+            // Authenticate the user
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
+            Authentication authResult = authenticationManager.authenticate(authToken);
 
-        if (isAuthenticated) {
-            return ResponseEntity.ok("Login successful");
+
+            // Generate JWT
+            String userId =  userService.getUserIdByUsername(username);
+            String role = userService.getRoleFromUserId(userId);
+            String token = JwtUtil.generateToken(username,userId,role);
+
+            return ResponseEntity.ok(token);
+        } catch (AuthenticationException e) {
+            // Specific error handling
+            String errorMessage = determineErrorType(e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
+        }
+    }
+
+    private String determineErrorType(AuthenticationException e) {
+        // Determine the type of authentication failure
+        if (e instanceof BadCredentialsException) {
+            return "Invalid username or password.";
+        } else if (e instanceof DisabledException) {
+            return "User account is disabled. Please contact support.";
+        } else if (e instanceof LockedException) {
+            return "User account is locked. Please contact support.";
+        } else if (e instanceof CredentialsExpiredException) {
+            return "User credentials have expired. Please reset your password.";
+        } else if (e instanceof AccountExpiredException) {
+            return "User account has expired. Please contact support.";
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            return "Authentication failed. Please try again.";
         }
 
+
     }
-
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        // Get the current authentication object
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        if (auth != null) {
-            // Create a SecurityContextLogoutHandler to perform logout
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-        }
-
-        // Return a success message after logout
-        return ResponseEntity.ok("Logged out successfully");
-    }
-
-
 }
+

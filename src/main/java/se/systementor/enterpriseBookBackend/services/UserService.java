@@ -1,19 +1,9 @@
 package se.systementor.enterpriseBookBackend.services;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import se.systementor.enterpriseBookBackend.config.DatabaseConnection;
-
-import javax.sql.DataSource;
 import java.sql.*;
 
 @Service
@@ -22,8 +12,6 @@ public class UserService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
-
-
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -60,8 +48,50 @@ public class UserService {
         return false;
     }
 
+    public String getUserIdByUsername(String username) {
+        String query = "SELECT user_id FROM users WHERE username = ?";
 
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
 
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Retrieve the user ID from the result set
+                return Integer.toString(rs.getInt("user_id"));
+            } else {
+
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String getRoleFromUserId(String userId){
+        String query = "SELECT role_id FROM user_roles WHERE user_id = ?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String role_id = Integer.toString(rs.getInt("role_id"));
+                    if(role_id.equals("1"))
+                        return "ADMIN";
+                    else if(role_id.equals("2"))
+                        return "USER";
+                    else return null;
+                }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return null;
+    }
 
 
     public boolean authenticateUser(String username, String password) {
@@ -79,7 +109,7 @@ public class UserService {
                 // Use the password encoder to verify the password
                 return passwordEncoder.matches(password, storedPasswordHash);
             } else {
-                // User not found
+
                 return false;
             }
         } catch (SQLException e) {

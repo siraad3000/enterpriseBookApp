@@ -21,8 +21,15 @@ const LoginPage = () => {
       })
 
       if (response.ok) {
+        // Get JWT directly from the response text
+        const jwt = await response.text() // The JWT is returned as plain text
+
+        // Store JWT in sessionStorage
+        sessionStorage.setItem("jwt", jwt)
+
         setFeedbackMessage("Login successful!")
-        navigate("/books")
+
+        navigate("/About-us")
       } else {
         setFeedbackMessage("Login failed. Please check your credentials.")
       }

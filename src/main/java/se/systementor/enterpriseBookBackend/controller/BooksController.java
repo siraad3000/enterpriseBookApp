@@ -1,21 +1,12 @@
 package se.systementor.enterpriseBookBackend.controller;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import se.systementor.enterpriseBookBackend.models.ReviewRequest;
-import se.systementor.enterpriseBookBackend.models.UpdateReviewTextRequest;
-import se.systementor.enterpriseBookBackend.models.saveBookRequest;
 import se.systementor.enterpriseBookBackend.services.BookService;
-import se.systementor.enterpriseBookBackend.services.UserService;
 
-import java.awt.print.Book;
-import java.util.List;
 
 
 @RestController
@@ -60,6 +51,7 @@ public class BooksController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create review.");
         }
     }
+    /*
 
 
     @PostMapping("/saveBook")
@@ -82,7 +74,7 @@ public class BooksController {
         }
     }
 
-
+     */
 
 
 
@@ -120,9 +112,9 @@ public class BooksController {
         }
     }
 
-    // Delete review by ID
     @DeleteMapping("/deleteReview/{id}")
     public ResponseEntity<String> deleteReviewById(@PathVariable int id) {
+
         boolean isDeleted = bookService.deleteReviewById(id);
 
         if (isDeleted) {
@@ -131,7 +123,5 @@ public class BooksController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete review.");
         }
     }
-
-
 
 }
